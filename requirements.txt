@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+mysql-connector-python
+pandas
+numpy
+scikit-learn
+tensorflow
+transformers
+torch
+newsapi-python
+python-dotenv
