@@ -25,9 +25,31 @@ git clone <repo-url>
 cd finport-ai
 ```
 
-### 2. Install dependencies
+### 2. Create a Python environment and install dependencies
 
-> Requires Python 3.9+. Use the `genai` conda environment or any Python environment.
+> Requires Python 3.11. Choose whichever option suits your setup.
+
+**Option A — Conda (recommended)**
+
+```bash
+conda create -n genai python=3.11
+conda activate genai
+pip install -r requirements.txt
+```
+
+**Option B — Virtual environment (Mac/Linux/Windows)**
+
+```bash
+python -m venv venv
+```
+
+```bash
+# Mac / Linux
+source venv/bin/activate
+
+# Windows
+venv\Scripts\activate
+```
 
 ```bash
 pip install -r requirements.txt
@@ -53,11 +75,23 @@ AI_PORT=8000
 
 ### 4. Run the AI server
 
+Open a **new terminal** (separate from the Node.js and React terminals) and run:
+
 ```bash
 uvicorn ai_server:app --port 8000 --reload
 ```
 
 The service will be available at `http://localhost:8000`.
+
+> **Port summary — each service runs in its own terminal:**
+>
+> | Service | Port | Terminal |
+> |---|---|---|
+> | Node.js API (existing) | 5000 | Terminal 1 |
+> | React frontend (existing) | 5173 | Terminal 2 |
+> | FinPort-AI (this service) | 8000 | Terminal 3 |
+>
+> FinPort-AI runs completely independently. Starting or stopping it has no effect on the Node.js server or the React frontend.
 
 ---
 
@@ -65,11 +99,11 @@ The service will be available at `http://localhost:8000`.
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `/health` | GET | Health check — confirms the service is running and DB is reachable |
-| `/anomaly/detect` | POST | Runs Isolation Forest on transaction history to flag unusual activity; writes results to the `Alert` table |
-| `/forecast/prices` | POST | Runs an LSTM model on `Price_History` to generate short-term price forecasts for held securities |
-| `/sentiment/news` | POST | Fetches recent news via NewsAPI and runs BERT sentiment analysis on headlines for securities in client portfolios; writes sentiment alerts to the `Alert` table |
-| `/rebalance/suggest` | POST | Analyses current `Holding` weights against target allocations and generates rebalancing suggestions; writes results to the `Rebalance_Log` table |
+| `/health` | GET | Health check — confirms the service is running |
+| `/ai/anomalies` | POST | Runs Isolation Forest on `Transaction` data to flag unusual activity; writes results to the `Alert` table |
+| `/ai/forecast` | POST | Computes next-day price forecasts for all securities from `Price_History`; writes `Price Forecast` alerts for downward-trending securities |
+| `/ai/sentiment` | POST | Scores news sentiment per security using a bullish/bearish keyword dictionary; writes `Sentiment` alerts to the `Alert` table |
+| `/ai/rebalance` | POST | Compares current allocation (from `vw_asset_allocation`) against target weights; writes `Pending` recommendations to the `Rebalance_Log` table |
 
 ---
 
