@@ -3,6 +3,7 @@ ai_server.py — Main FastAPI application for FinPort-AI.
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from models.anomaly import detect_anomalies
 from models.rebalance import recommend_rebalance
 from models.lstm import forecast_prices
@@ -14,6 +15,12 @@ app = FastAPI(
     version="0.1.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/health")
 def health_check():
